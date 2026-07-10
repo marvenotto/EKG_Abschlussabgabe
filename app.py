@@ -6,67 +6,132 @@ from PIL import Image
 import json
 import importlib
 
-# Importe aus unseren Modulen
+# Modulare Datei-Importe
 from src.models import Person, EKG
 from src.processing import SignalProcessor
 from src.visualization import plot_interactive_ekg
 import src.auth as auth  
 
-# Zwingt Streamlit dazu, die auth.py bei jedem Laden frisch einzulesen
+# Erzwingt das Neuladen veränderter Module im Hintergrund (Anti-Caching)
 importlib.reload(auth)
 
-# Versuche den PDF Generator zu laden, falls vorhanden
+# Dynamischer Import des PDF-Report-Generators
 try:
     from src.pdf_generator import generate_pdf_report
 except ImportError:
     generate_pdf_report = None
 
-# Layout & Theme (UI/UX)
+# App-Konfiguration & UI-Grundstruktur
 st.set_page_config(page_title="EKG Dashboard", layout="wide", initial_sidebar_state="expanded")
 
-# --- AUTHENTIFIZIERUNG ---
+# --- INITIALISIERUNG DES SESSION STATES ---
+# --- INITIALISIERUNG DES SESSION STATES ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "verify_email" not in st.session_state:
     st.session_state.verify_email = None
+if "setup_profile_email" not in st.session_state:
+    st.session_state.setup_profile_email = None
 if "is_admin" not in st.session_state:
     st.session_state.is_admin = False 
 if "user_email" not in st.session_state:
     st.session_state.user_email = None
+if "reset_email" not in st.session_state:
+    st.session_state.reset_email = None
+if "reset_code_sent" not in st.session_state:
+    st.session_state.reset_code_sent = None
 
+# --- AUTHENTIFIZIERUNGS-WORKFLOW ---
 if not st.session_state.authenticated:
     st.title("🔒 Willkommen zur EKG Analyse")
     
+    # E-Mail-Code Verifizierungsschritt
     if st.session_state.verify_email:
         st.info(f"📧 Wir haben eine E-Mail an **{st.session_state.verify_email}** gesendet.")
         code_input = st.text_input("Bitte gib den 6-stelligen Code ein:")
+        
         if st.button("Code bestätigen", key="auth_code_confirm"):
             if auth.verify_code(st.session_state.verify_email, code_input):
-                st.success("✅ Account erfolgreich verifiziert! Du kannst dich jetzt einloggen.")
+                # Anstatt heimlich eine Dummy-Akte anzulegen, starten wir das Onboarding
+                st.session_state.setup_profile_email = st.session_state.verify_email
                 st.session_state.verify_email = None 
                 st.rerun()
             else:
                 st.error("❌ Falscher Code. Bitte erneut versuchen.")
+                
         if st.button("Abbrechen", key="auth_code_cancel"):
             st.session_state.verify_email = None
             st.rerun()
+            
         st.stop()
+        
+    # --- NEU: ONBOARDING (PROFIL ERSTELLEN) ---
+    if st.session_state.setup_profile_email:
+        st.success("✅ E-Mail erfolgreich verifiziert!")
+        st.header("👋 Willkommen! Lass uns dein Profil einrichten.")
+        st.write("Bitte gib deine Gesundheitsdaten ein, damit wir deine EKG-Werte korrekt analysieren können.")
+        
+        col_setup1, col_setup2 = st.columns(2)
+        with col_setup1:
+            st.subheader("Basisdaten")
+            setup_fname = st.text_input("Vorname", key="setup_fname")
+            setup_lname = st.text_input("Nachname", key="setup_lname")
+            setup_year = st.number_input("Geburtsjahr", min_value=1900, max_value=2026, value=2000, key="setup_year")
+            setup_gender = st.selectbox("Geschlecht", ["male", "female", "diverse"], key="setup_gender")
+            
+        with col_setup2:
+            st.subheader("Körper- & Fitnessdaten")
+            setup_weight = st.number_input("Gewicht (kg)", min_value=30.0, max_value=200.0, value=75.0, step=0.5, key="setup_weight")
+            setup_height = st.number_input("Größe (cm)", min_value=100, max_value=250, value=175, key="setup_height")
+            setup_activity = st.selectbox("Aktivitätslevel", ["Sitzend (Büro)", "Leicht aktiv", "Sportlich aktiv", "Leistungssportler"], key="setup_activity")
+            
+        if st.button("💾 Profil speichern & Registrierung abschließen", use_container_width=True, key="setup_save_btn"):
+            if setup_fname and setup_lname:
+                aktueller_file_path = "data/person_db.json"
+                aktuelle_personen = Person.load_person_data(aktueller_file_path)
+                
+                if not any(p.get("email") == st.session_state.setup_profile_email for p in aktuelle_personen):
+                    neue_id = max([p.get("id", 0) for p in aktuelle_personen]) + 1 if aktuelle_personen else 1
+                    
+                    neue_akte = {
+                        "id": neue_id,
+                        "firstname": setup_fname,
+                        "lastname": setup_lname,
+                        "email": st.session_state.setup_profile_email,
+                        "date_of_birth": setup_year,
+                        "gender": setup_gender,
+                        "weight": setup_weight,
+                        "height": setup_height,
+                        "activity_level": setup_activity,
+                        "picture_path": "data/pictures/none.jpg",
+                        "ekg_tests": []
+                    }
+                    aktuelle_personen.append(neue_akte)
+                    
+                    with open(aktueller_file_path, "w", encoding="utf-8") as f:
+                        json.dump(aktuelle_personen, f, indent=4, ensure_ascii=False)
+                        
+                st.session_state.setup_profile_email = None
+                st.session_state.show_success_msg = True
+                st.rerun()
+            else:
+                st.error("⚠️ Bitte gib zumindest deinen Vor- und Nachnamen ein.")
+        st.stop()
+        
+    if st.session_state.get("show_success_msg"):
+        st.success("🎉 Profil erfolgreich erstellt! Du kannst dich jetzt einloggen.")
+        st.session_state.show_success_msg = False
 
+
+    # Login / Registrierungs-Tabs
     tab_login, tab_register, tab_admin_login = st.tabs(["🔑 Patienten Login", "📝 Registrieren", "🛡️ Admin Zugang"])
     
-    # --- STATUS-VARIABLEN FÜR PASSWORT-RESET ---
-    if "reset_email" not in st.session_state:
-        st.session_state.reset_email = None
-    if "reset_code_sent" not in st.session_state:
-        st.session_state.reset_code_sent = None
-
     with tab_login:
         st.subheader("Als Patient / Nutzer anmelden")
         
-        # --- NORMALER LOGIN ---
         if not st.session_state.reset_email:
             login_email = st.text_input("E-Mail", key="login_email")
-            login_password = st.text_input("Passwort", type="password", key="login_pass")
+            login_password = st.text_input("Passwort", type="password", key="login_password")
             
             col1, col2 = st.columns(2)
             with col1:
@@ -79,7 +144,6 @@ if not st.session_state.authenticated:
                     else:
                         st.error("❌ Falsches Passwort oder E-Mail noch nicht verifiziert.")
             with col2:
-                # Klick startet den Reset-Prozess
                 if st.button("Passwort vergessen?", key="btn_forgot_pass"):
                     if login_email:
                         st.session_state.reset_email = login_email
@@ -87,11 +151,9 @@ if not st.session_state.authenticated:
                     else:
                         st.warning("Bitte gib deine E-Mail-Adresse in das Feld ein, um das Passwort zurückzusetzen.")
         
-        # --- PASSWORT RESET PROZESS ---
         else:
             st.info(f"Passwort-Reset für: **{st.session_state.reset_email}**")
             
-            # Schritt 1: Code senden
             if not st.session_state.reset_code_sent:
                 if st.button("Bestätigungs-Code per E-Mail anfordern"):
                     with st.spinner("Sende Code..."):
@@ -101,18 +163,16 @@ if not st.session_state.authenticated:
                         
                         if res == "not_found":
                             st.error("Diese E-Mail ist nicht registriert oder noch nicht verifiziert.")
-                            st.session_state.reset_email = None # Abbrechen
+                            st.session_state.reset_email = None
                         elif res == "error":
                             st.error("Fehler beim Senden der E-Mail.")
                         else:
-                            st.session_state.reset_code_sent = res # Den generierten Code speichern
+                            st.session_state.reset_code_sent = res
                             st.rerun()
                 
                 if st.button("Abbrechen", key="btn_reset_cancel_1"):
                     st.session_state.reset_email = None
                     st.rerun()
-            
-            # Schritt 2: Code prüfen und neues Passwort setzen
             else:
                 st.success("📧 Wir haben dir einen 6-stelligen Code gesendet!")
                 entered_code = st.text_input("Bitte Code eingeben:")
@@ -126,7 +186,6 @@ if not st.session_state.authenticated:
                             if new_pass1 == new_pass2 and len(new_pass1) >= 4:
                                 if auth.update_password(st.session_state.reset_email, new_pass1):
                                     st.success("✅ Passwort erfolgreich geändert! Du kannst dich jetzt einloggen.")
-                                    # Reset-Status aufräumen
                                     st.session_state.reset_email = None
                                     st.session_state.reset_code_sent = None
                                 else:
@@ -169,7 +228,7 @@ if not st.session_state.authenticated:
         admin_pass = st.text_input("Passwort", type="password", key="admin_pass")
         
         if st.button("Als Admin einloggen", key="btn_admin_login"):
-            if admin_user == "admin" and admin_pass == "admin123":
+            if admin_user.strip() == "admin" and admin_pass.strip() == "admin123":
                 st.session_state.authenticated = True
                 st.session_state.is_admin = True 
                 st.rerun()
@@ -177,7 +236,7 @@ if not st.session_state.authenticated:
                 st.error("❌ Falsche Admin-Zugangsdaten.")
     st.stop() 
 
-# --- HAUPT-APP ---
+# --- DATEN-ACQUISITION & SIDEBAR CONTROL ---
 FILE_PATH = "data/person_db.json"
 SAMPLING_RATE_HZ = 500
 
@@ -197,14 +256,13 @@ with st.sidebar:
         st.session_state.is_admin = False
         st.session_state.user_email = None
         st.rerun()
-    st.markdown("---")
-    
-    st.write("🎨 **Theme anpassen:**")
-    st.caption("Nutze das Menü oben rechts (⋮) -> Settings -> Theme")
         
     st.markdown("---")
+    st.write("🎨 **Theme anpassen:**")
+    st.caption("Nutze das Menü oben rechts (⋮) -> Settings -> Theme")
+    st.markdown("---")
     
-    # --- DATENSCHUTZ FILTER ---
+    # Datenschutzkonforme Filtersteuerung nach Benutzerrolle
     if st.session_state.is_admin:
         if name_list:
             st.session_state.aktuelle_versuchsperson = st.selectbox('Versuchsperson wählen:', options=name_list, key="admin_person_select")
@@ -213,14 +271,38 @@ with st.sidebar:
             st.session_state.aktuelle_versuchsperson = None
     else:
         my_data = [p for p in user_data if p.get("email") == st.session_state.user_email]
+        
         if my_data:
             st.session_state.aktuelle_versuchsperson = f"{my_data[0].get('firstname', '')} {my_data[0].get('lastname', '')}".strip()
             st.write(f"**Deine Patientenakte:** {st.session_state.aktuelle_versuchsperson}")
         else:
-            st.error("Es konnte keine Patientenakte mit deiner E-Mail gefunden werden. Bitte den Admin kontaktieren.")
-            st.stop() 
+            # --- KUGELSICHERE AUTOMATISCHE ERSTELLUNG ---
+            # Wenn der Login klappt, aber die Akte fehlt, wird sie hier sofort generiert!
+            neue_id = max([p.get("id", 0) for p in user_data]) + 1 if user_data else 1
+            vorlaeufiger_name = st.session_state.user_email.split("@")[0].capitalize()
+            
+            neue_akte = {
+                "id": neue_id,
+                "firstname": vorlaeufiger_name,
+                "lastname": "Neu",
+                "email": st.session_state.user_email,
+                "date_of_birth": 2000,
+                "gender": "male",
+                "weight": 75.0,
+                "height": 175,
+                "activity_level": "Leicht aktiv",
+                "picture_path": "data/pictures/none.jpg",
+                "ekg_tests": []
+            }
+            user_data.append(neue_akte)
+            
+            with open(FILE_PATH, "w", encoding="utf-8") as f:
+                json.dump(user_data, f, indent=4, ensure_ascii=False)
+                
+            # Sofortiger Neuladen der App - der User merkt nicht mal, dass die Akte gefehlt hat!
+            st.rerun()
 
-# --- ROLLENBASIERTE TABS ---
+# --- STRUKTURIERTE REGISTERKARTEN-NAVIGATION ---
 if st.session_state.is_admin:
     tab_dashboard, tab_verwaltung, tab_admin = st.tabs(["📊 Dashboard", "⚙️ Patientenverwaltung (Admin)", "👑 Statistiken (Admin)"])
 else:
@@ -228,6 +310,7 @@ else:
 
 current_person_data = next((item for item in user_data if f"{item.get('firstname', '')} {item.get('lastname', '')}".strip() == st.session_state.aktuelle_versuchsperson), None) if user_data else None
 
+# --- TAB: ANZEIGEDASHBOARD ---
 with tab_dashboard:
     if current_person_data:
         person = Person(current_person_data)
@@ -254,7 +337,6 @@ with tab_dashboard:
                 st.write(f"**BMI:** {bmi:.1f}")
             
             st.write(f"**Aktivitätslevel:** {activity}")
-            
             st.markdown("---")
             st.write(f"**Max HF:** {person.calc_max_hr()} bpm")
             
@@ -287,9 +369,9 @@ with tab_dashboard:
                 
                 if generate_pdf_report:
                     pdf_data = generate_pdf_report(person.name, person.calc_age(), mean_hr, str(anomalies_detected))
-                    col_m3.download_button(label="📄 PDF Report Export", data=pdf_data, file_name=f"EKG_Report_{person.lastname}.pdf", mime="application/pdf", key="pdf_export_btn")
+                    st.download_button(label="📄 PDF Report Export", data=pdf_data, file_name=f"EKG_Report_{person.lastname}.pdf", mime="application/pdf", key="pdf_export_btn")
                 else:
-                    col_m3.download_button("📄 PDF Report Export (Dummy)", "Dummy Content", file_name="report.pdf", key="pdf_export_dummy_btn")
+                    st.download_button("📄 PDF Report Export (Dummy)", "Dummy Content", file_name="report.pdf", key="pdf_export_dummy_btn")
                 
                 st.subheader("EKG Zeitreihe")
                 max_sec = float(len(ekg.df) / SAMPLING_RATE_HZ)
@@ -303,7 +385,8 @@ with tab_dashboard:
             elif ekg:
                 st.info("Die EKG-Datei konnte nicht geladen werden oder ist leer.")
 
-# --- BEREICHE FÜR PATIENTEN ---
+# --- BEREICHE FÜR REGISTRIERTE PATIENTEN ---
+# --- BEREICHE FÜR REGISTRIERTE PATIENTEN ---
 if not st.session_state.is_admin:
     
     with tab_vergleich:
@@ -330,7 +413,7 @@ if not st.session_state.is_admin:
 
     with tab_profil:
         st.header("👤 Mein Profil bearbeiten")
-        st.write("Hier kannst du deine persönlichen Daten und Gesundheitswerte aktualisieren.")
+        st.write("Hier kannst du deine persönlichen Daten aktualisieren, ein Profilbild hochladen und neue EKG-Messungen einreichen.")
         
         if current_person_data:
             col_p1, col_p2 = st.columns(2)
@@ -345,6 +428,10 @@ if not st.session_state.is_admin:
                 current_gender = current_person_data.get("gender", "male")
                 gender_idx = gender_options.index(current_gender) if current_gender in gender_options else 0
                 new_gender = st.selectbox("Geschlecht", gender_options, index=gender_idx)
+                
+                st.markdown("---")
+                st.subheader("🖼️ Profilbild hochladen")
+                uploaded_picture = st.file_uploader("Wähle ein Profilbild (JPG/PNG):", type=["jpg", "jpeg", "png"], key="profile_pic_uploader")
 
             with col_p2:
                 st.subheader("Körper- & Fitnessdaten")
@@ -359,9 +446,17 @@ if not st.session_state.is_admin:
                 if new_height > 0:
                     bmi = new_weight / ((new_height / 100) ** 2)
                     st.info(f"📊 Dein aktueller BMI: **{bmi:.1f}**")
+                    
+                st.markdown("---")
+                st.subheader("📥 Neue EKG-Daten hochladen")
+                uploaded_ekg = st.file_uploader("Wähle eine EKG-Datei (CSV/TXT):", type=["csv", "txt"], key="ekg_data_uploader")
+                ekg_date = st.date_input("Messdatum für das EKG:", key="ekg_date_input")
             
             st.markdown("---")
-            if st.button("💾 Änderungen sicher in der Akte speichern", use_container_width=True):
+            if st.button("💾 Änderungen und Uploads sicher speichern", use_container_width=True):
+                os.makedirs("data/pictures", exist_ok=True)
+                os.makedirs("data", exist_ok=True)
+                
                 for person_dict in user_data:
                     if person_dict.get("email") == st.session_state.user_email:
                         person_dict["firstname"] = new_fname
@@ -371,44 +466,125 @@ if not st.session_state.is_admin:
                         person_dict["weight"] = new_weight
                         person_dict["height"] = new_height
                         person_dict["activity_level"] = new_activity
+                        
+                        if uploaded_picture is not None:
+                            file_extension = os.path.splitext(uploaded_picture.name)[1]
+                            target_pic_path = f"data/pictures/user_{person_dict['id']}{file_extension}"
+                            with open(target_pic_path, "wb") as f:
+                                f.write(uploaded_picture.getbuffer())
+                            person_dict["picture_path"] = target_pic_path
+                        
+                        if uploaded_ekg is not None:
+                            bestehende_tests = person_dict.get("ekg_tests", [])
+                            neue_ekg_id = max([t.get("id", 0) for t in bestehende_tests]) + 1 if bestehende_tests else 1
+                            target_ekg_path = f"data/ekg_{person_dict['id']}_test_{neue_ekg_id}.csv"
+                            with open(target_ekg_path, "wb") as f:
+                                f.write(uploaded_ekg.getbuffer())
+                            neuer_test_eintrag = {
+                                "id": neue_ekg_id,
+                                "date": ekg_date.strftime("%d.%m.%Y"),
+                                "result_link": target_ekg_path
+                            }
+                            if "ekg_tests" not in person_dict:
+                                person_dict["ekg_tests"] = []
+                            person_dict["ekg_tests"].append(neuer_test_eintrag)
+                            st.toast(f"▶️ EKG Test {neue_ekg_id} erfolgreich hinzugefügt!", icon="📈")
                         break
                 
                 try:
                     with open(FILE_PATH, "w", encoding="utf-8") as f:
                         json.dump(user_data, f, indent=4, ensure_ascii=False)
-                    st.success("✅ Dein Profil und deine Gesundheitsdaten wurden erfolgreich aktualisiert!")
+                    st.success("✅ Dein Profil, Bild und EKG-Daten wurden erfolgreich aktualisiert!")
                     st.rerun()
                 except Exception as e:
                     st.error(f"❌ Fehler beim Speichern: {e}")
-
-# --- ADMIN BEREICHE ---
+                    
+# --- ADMINISTRATOREN-FUNKTIONEN ---
 if st.session_state.is_admin:
+    
     with tab_verwaltung:
         st.header("Patientenverwaltung (Admin-Bereich)")
         st.write("### 📋 Alle Patienten im Überblick")
         if user_data:
             df_patients = pd.DataFrame(user_data)
-            cols_to_show = ["id", "firstname", "lastname", "date_of_birth", "gender"]
+            # Zeigt jetzt auch die E-Mail in der Tabelle an
+            cols_to_show = ["id", "firstname", "lastname", "email", "date_of_birth"]
+            # Filtert Spalten, die vielleicht noch nicht existieren, um Fehler zu vermeiden
+            cols_to_show = [c for c in cols_to_show if c in df_patients.columns]
             st.dataframe(df_patients[cols_to_show], use_container_width=True)
         else:
             st.info("Keine Patienten in der Datenbank.")
             
         st.markdown("---")
         v_col1, v_col2 = st.columns(2)
+        
         with v_col1:
             st.subheader("Neue Person anlegen")
-            st.text_input("Vorname", key="new_fname")
-            st.text_input("Nachname", key="new_lname")
-            st.number_input("Geburtsjahr", min_value=1900, max_value=2026, key="new_year")
-            st.file_uploader("Bild hochladen", key="new_pic")
-            st.button("Person speichern", key="save_new_person")
+            new_fname = st.text_input("Vorname", key="new_fname")
+            new_lname = st.text_input("Nachname", key="new_lname")
+            new_email = st.text_input("E-Mail (für Patienten-Login)", key="new_email_input")
+            new_year = st.number_input("Geburtsjahr", min_value=1900, max_value=2026, value=2000, key="new_year")
+            
+            if st.button("➕ Person speichern", key="save_new_person"):
+                if new_fname and new_lname and new_email:
+                    new_id = max([p.get("id", 0) for p in user_data]) + 1 if user_data else 1
+                    
+                    new_person = {
+                        "id": new_id,
+                        "firstname": new_fname,
+                        "lastname": new_lname,
+                        "email": new_email,  
+                        "date_of_birth": new_year,
+                        "gender": "Keine Angabe",
+                        "weight": 70.0,
+                        "height": 170,
+                        "activity_level": "Nicht angegeben",
+                        "picture_path": "data/pictures/none.jpg",
+                        "ekg_tests": []
+                    }
+                    user_data.append(new_person)
+                    
+                    with open(FILE_PATH, "w", encoding="utf-8") as f:
+                        json.dump(user_data, f, indent=4, ensure_ascii=False)
+                        
+                    st.success(f"✅ Akte für {new_fname} {new_lname} wurde erfolgreich angelegt!")
+                    st.rerun()
+                else:
+                    st.error("⚠️ Bitte Vorname, Nachname UND E-Mail eintragen.")
+            
         with v_col2:
-            st.subheader("Bestehende bearbeiten")
+            st.subheader("Bestehende bearbeiten & löschen")
             if name_list:
-                st.selectbox("Zu bearbeitende Person:", name_list, key="edit_person_select")
-                st.text_input("Neuer Vorname", key="edit_fname")
-                st.text_input("Neuer Nachname", key="edit_lname")
-                st.button("Änderungen sichern", key="save_edit_person")
+                selected_name = st.selectbox("Zu bearbeitende Person:", name_list, key="edit_person_select")
+                person_to_edit = next((p for p in user_data if f"{p.get('firstname', '')} {p.get('lastname', '')}".strip() == selected_name), None)
+                
+                if person_to_edit:
+                    edit_fname = st.text_input("Vorname", value=person_to_edit.get("firstname", ""))
+                    edit_lname = st.text_input("Nachname", value=person_to_edit.get("lastname", ""))
+                    edit_email = st.text_input("E-Mail", value=person_to_edit.get("email", "")) # <--- E-MAIL BEARBEITEN
+                    edit_year = st.number_input("Geburtsjahr", min_value=1900, max_value=2026, value=int(person_to_edit.get("date_of_birth", 2000)))
+                    
+                    col_btn1, col_btn2 = st.columns(2)
+                    with col_btn1:
+                        if st.button("💾 Änderungen sichern", use_container_width=True):
+                            person_to_edit["firstname"] = edit_fname
+                            person_to_edit["lastname"] = edit_lname
+                            person_to_edit["email"] = edit_email # <--- WIRD GESPEICHERT
+                            person_to_edit["date_of_birth"] = edit_year
+                            
+                            with open(FILE_PATH, "w", encoding="utf-8") as f:
+                                json.dump(user_data, f, indent=4, ensure_ascii=False)
+                            st.success("✅ Aktualisiert!")
+                            st.rerun()
+                            
+                    with col_btn2:
+                        if st.button("🗑️ Profil löschen", type="primary", use_container_width=True):
+                            user_data.remove(person_to_edit)
+                            
+                            with open(FILE_PATH, "w", encoding="utf-8") as f:
+                                json.dump(user_data, f, indent=4, ensure_ascii=False)
+                            st.success("🗑️ Akte wurde restlos entfernt!")
+                            st.rerun()
             else:
                 st.warning("Es gibt noch keine Personen zum Bearbeiten.")
 

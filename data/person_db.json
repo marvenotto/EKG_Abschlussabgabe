@@ -5,7 +5,7 @@
         "email": "oofuzzleoo@gmail.com",
         "firstname": "Marven",
         "lastname": "Otto",
-        "picture_path": "data/pictures/tb.jpg",
+        "picture_path": "data/pictures/marven.jpg",
         "gender": "male",
         "ekg_tests": [
             {
@@ -26,10 +26,10 @@
     {
         "id": 2,
         "date_of_birth": 1967,
-        "email": "yannic.heyer@gmail.com",
-        "firstname": "Yannic",
-        "lastname": "Heyer",
-        "picture_path": "data/pictures/js.jpg",
+        "email": "undav.dfb@gmail.com",
+        "firstname": "Denis",
+        "lastname": "Undav",
+        "picture_path": "data/pictures/undav.jpg",
         "gender": "male",
         "ekg_tests": [
             {
@@ -42,10 +42,10 @@
     {
         "id": 3,
         "date_of_birth": 1973,
-        "email": "yunus.schmirander@gmail.com",
-        "firstname": "Yunus",
-        "lastname": "Schmirander",
-        "picture_path": "data/pictures/bl.jpg",
+        "email": "Cedi@gmail.com",
+        "firstname": "Cedi",
+        "lastname": "Blake",
+        "picture_path": "data/pictures/none.jpg",
         "gender": "male",
         "ekg_tests": [
             {
@@ -54,5 +54,18 @@
                 "result_link": "data/ekg_data/03_Ruhe.txt"
             }
         ]
+    },
+    {
+        "id": 5,
+        "firstname": "Paul",
+        "lastname": "Tischler",
+        "email": "om4326@mci4me.at",
+        "date_of_birth": 1997,
+        "gender": "diverse",
+        "weight": 71.5,
+        "height": 184,
+        "activity_level": "Leistungssportler",
+        "picture_path": "data/pictures/none.jpg",
+        "ekg_tests": []
     }
 ]
