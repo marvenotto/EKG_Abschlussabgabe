@@ -52,11 +52,12 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 * **Passwort für Testaccount:** 12345
 
 **Verfügbare Test-Akten:**
- **Test-Account:** oofuzzleoo@gmail.com
 
-* **Marven Otto:** marvenotto@gmail.com
-* **Denis Undav:** undav.dfb@gmail.com
-* **Cedi Blake:** Cedi@gmail.com
+ * **Test-Account:** oofuzzleoo@gmail.com
+
+* **Marven Otto** 
+* **Denis Undav** 
+* **Cedi Blake** 
 
 
 *Hinweis zum Self-Service:* Jederzeit können über den Reiter "📝 Registrieren" neue, vollwertige Patienten-Accounts inklusive automatisiertem Profil-Onboarding von Grund auf neu erstellt werden.
@@ -106,7 +107,7 @@ password = "caoefminvcgduktf"
 ### Schritt 5: Applikation starten
 Tippen Sie den Startbefehl in das Terminal ein:
 
-    streamlit run app.py
+    streamlit run main.py
 
 Ihr Standard-Webbrowser öffnet sich nun automatisch unter `http://localhost:8501` und das Dashboard ist einsatzbereit!
 
