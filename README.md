@@ -19,6 +19,11 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 * **Anonymer Gruppenvergleich:** Datenschutzkonformer Vergleich der eigenen durchschnittlichen Herzfrequenz mit aggregierten Referenzwerten anderer Altersgruppen.
 * **PDF-Export:** Generierung eines standardisierten klinischen EKG-Untersuchungsberichts.
 
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
+
+
 ### 🛡️ Admin-Bereich (CRUD)
 * **Patientenverwaltung:** Vollständige Einsicht in die zentrale Patientendatenbank (person_db.json).
 * **Datenmanipulation (CRUD):** Erstellen neuer Patientenakten, tiefgreifendes Bearbeiten bestehender Stammdaten und restloses Löschen von Profilen.
@@ -50,10 +55,6 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 
 
 *Hinweis zum Self-Service:* Jederzeit können über den Reiter "📝 Registrieren" neue, vollwertige Patienten-Accounts inklusive automatisiertem Profil-Onboarding von Grund auf neu erstellt werden.
-
-![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-5.png)
 
 ---
 

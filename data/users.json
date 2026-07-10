@@ -4,14 +4,14 @@
         "verified": true,
         "code": "673573"
     },
-    "marvenotto@gmail.com": {
-        "password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
-        "verified": true,
-        "code": "423190"
-    },
     "om4326@mci4me.at": {
         "password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
         "verified": true,
         "code": "100255"
+    },
+    "marvenotto@gmail.com": {
+        "password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "verified": false,
+        "code": "256520"
     }
 }
