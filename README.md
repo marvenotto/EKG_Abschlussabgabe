@@ -24,7 +24,7 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 ![alt text](image-5.png)
 
 
-### 🛡️ Admin-Bereich (CRUD)
+### 🛡️ Admin-Bereich
 * **Patientenverwaltung:** Vollständige Einsicht in die zentrale Patientendatenbank (person_db.json).
 * **Datenmanipulation (CRUD):** Erstellen neuer Patientenakten, tiefgreifendes Bearbeiten bestehender Stammdaten und restloses Löschen von Profilen.
 * **Systemstatistiken:** Aggregierte, anonymisierte Systemauswertung (z. B. Anomalie-Häufigkeiten und demografische Verteilungen).
@@ -32,6 +32,11 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 ![alt text](image.png)
 ![alt text](image-1.png)
 ![alt text](image-2.png)
+
+### Neu Regestrierung
+
+![alt text](image-6.png)
+![alt text](image-7.png)
 
 ---
 
