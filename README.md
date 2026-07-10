@@ -10,7 +10,7 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 
 ---
 
-##  Hauptfunktionen (Features)
+##  Unsere Features
 
 ### 👤 Patienten-Bereich
 * **Automatisches Onboarding:** Erstregistrierung inklusive vollständiger Erfassung demografischer und anthropometrischer Parameter (Gewicht, Größe, Aktivitätslevel, BMI-Berechnung).
@@ -86,7 +86,7 @@ Da das System ein echtes E-Mail-Verfahren zur Registrierung nutzt, benötigt Str
 
     email = "ihre_test_email@gmail.com"
     password = "ihr_app_passwort"
-    
+
 ### Schritt 5: Applikation starten
 Tippen Sie den Startbefehl in das Terminal ein:
 
