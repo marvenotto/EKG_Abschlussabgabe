@@ -51,13 +51,9 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 * **Reiter im Interface:** 🔑 Patienten Login
 * **Passwort für Testaccount:** 12345
 
-**Verfügbare Test-Akten:**
+**Verfügbarer Test-Account:**
 
  * **Test-Account:** oofuzzleoo@gmail.com
-
-* **Marven Otto** 
-* **Denis Undav** 
-* **Cedi Blake** 
 
 
 *Hinweis zum Self-Service:* Jederzeit können über den Reiter "📝 Registrieren" neue, vollwertige Patienten-Accounts inklusive automatisiertem Profil-Onboarding von Grund auf neu erstellt werden.
