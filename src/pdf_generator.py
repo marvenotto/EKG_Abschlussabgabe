@@ -2,10 +2,7 @@ from fpdf import FPDF
 import os
 
 def generate_pdf_report(name: str, age: int, mean_hr: float, anomalies: str) -> bytes:
-    """
-    Generiert einen EKG-Report und nutzt einen sicheren Zwischenspeicher-Weg,
-    um plattformübergreifend korrekte PDF-Bytes zu garantieren.
-    """
+    """Erstellt einen PDF-Report mit den wichtigsten EKG-Ergebnissen."""
     pdf = FPDF()
     pdf.add_page()
     
@@ -32,16 +29,12 @@ def generate_pdf_report(name: str, age: int, mean_hr: float, anomalies: str) -> 
     pdf.set_font("Arial", 'I', 10)
     pdf.cell(0, 10, "Befund: Der Bericht wurde automatisch vom EKG-Dashboard generiert.", ln=True)
     
-    # --- DER SICHERE WEG ---
-    # 1. Kurz als echte, unsichtbare Datei speichern
     temp_file = "temp_report.pdf"
     pdf.output(temp_file)
-    
-    # 2. Die perfekten, sauberen Binärdaten auslesen
+
     with open(temp_file, "rb") as f:
         pdf_bytes = f.read()
-        
-    # 3. Datei sofort spurlos löschen (Aufräumen)
+
     if os.path.exists(temp_file):
         os.remove(temp_file)
         

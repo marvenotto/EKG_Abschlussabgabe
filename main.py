@@ -1,4 +1,5 @@
-import streamlit as st
-from app_logic import run_dashboard
+from src.app_logic import run_dashboard
 
-run_dashboard()
+
+if __name__ == "__main__":
+    run_dashboard()
