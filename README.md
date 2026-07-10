@@ -28,8 +28,6 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 
 ## 🔑 Zugangsdaten für die Präsentation (Demo-Credentials)
 
-Für die Demonstration und Überprüfung der Anwendung durch die Gutachter können folgende vorkonfigurierte Test-Accounts genutzt werden:
-
 ### 1. Administrator-Zugang
 * **Reiter im Interface:** 🛡️ Admin Zugang
 * **Benutzername:** admin
@@ -37,17 +35,19 @@ Für die Demonstration und Überprüfung der Anwendung durch die Gutachter könn
 
 ### 2. Patienten-Zugänge (Vorkonfiguriert)
 * **Reiter im Interface:** 🔑 Patienten Login
-* **Test-Account 1 (Denis Undav):**
-  * **E-Mail:** undav.dfb@gmail.com
-  * **Passwort:** (Über den Registrierungs-/Verifizierungsprozess neu anlegbar oder direkt in users.json hinterlegt)
-* **Test-Account 2 (Cedi Blake):**
-  * **E-Mail:** Cedi@gmail.com
+* **Passwort für alle für alle Patienten:** 1234
 
-*Hinweis zum Self-Service:* Jederzeit können über den Reiter "📝 Registrieren" neue, vollwertige Patienten-Accounts inklusive automatisiertem Profil-Onboarding erstellt werden.
+**Verfügbare Test-Aken:**
+* **Marven Otto:** marvenotto@gmail.com
+* **Denis Undav:** undav.dfb@gmail.com
+* **Cedi Blake:** Cedi@gmail.com
+* **Test-Account:** oofuzzleoo@gmail.com
+
+*Hinweis zum Self-Service:* Jederzeit können über den Reiter "📝 Registrieren" neue, vollwertige Patienten-Accounts inklusive automatisiertem Profil-Onboarding von Grund auf neu erstellt werden.
 
 ---
 
-## 🏗️ Systemarchitektur & Dateistruktur
+## Systemarchitektur & Dateistruktur
 
 Das Projekt folgt einer strikten Schichtentrennung (Modularisierung), um Wartbarkeit und Erweiterbarkeit für die Medizintechnik-Software zu garantieren:
 
@@ -73,7 +73,7 @@ EKG_Abschlussabgabe/
 
 ---
 
-## ⚙️ Installation und Inbetriebnahme
+## Installation und Inbetriebnahme
 
 ### Vorraussetzungen
 * Python 3.8 oder höher
@@ -96,7 +96,7 @@ EKG_Abschlussabgabe/
 
 ---
 
-## 🛠️ Verwendete Kern-Bibliotheken
+## Verwendete Kern-Bibliotheken
 
 * **Streamlit:** Framework für das Webinterface und die reaktive UI-Steuerung.
 * **NeuroKit2:** Fortschrittliche Biosignalanalyse zur präzisen Detektion von R-Zacken und Herzratenberechnung.
