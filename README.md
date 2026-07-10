@@ -84,8 +84,8 @@ Da das System ein echtes E-Mail-Verfahren zur Registrierung nutzt, benötigt Str
 2. Erstellen Sie in diesem Ordner eine Datei namens `secrets.toml`.
 3. Fügen Sie folgenden Inhalt in die `secrets.toml` ein (Sie können für den Testzweck auch Dummy-Daten eintragen, E-Mail-Versand funktioniert dann jedoch nicht):
 
-    email = "ihre_test_email@gmail.com"
-    password = "ihr_app_passwort"
+email = "oofuzzleoo@gmail.com"
+password = "caoefminvcgduktf"
 
 ### Schritt 5: Applikation starten
 Tippen Sie den Startbefehl in das Terminal ein:
