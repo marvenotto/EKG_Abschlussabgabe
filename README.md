@@ -51,6 +51,10 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 
 *Hinweis zum Self-Service:* Jederzeit können über den Reiter "📝 Registrieren" neue, vollwertige Patienten-Accounts inklusive automatisiertem Profil-Onboarding von Grund auf neu erstellt werden.
 
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
+
 ---
 
 ## Installation und Inbetriebnahme (Für Prüfer & Neueinsteiger)
