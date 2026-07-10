@@ -98,6 +98,7 @@ Da das System ein echtes E-Mail-Verfahren zur Registrierung nutzt, benötigt Str
 3. Fügen Sie folgenden Inhalt in die `secrets.toml` ein (Sie können für den Testzweck auch Dummy-Daten eintragen, E-Mail-Versand funktioniert dann jedoch nicht):
 
 email = "oofuzzleoo@gmail.com"
+
 password = "caoefminvcgduktf"
 
 ### Schritt 5: Applikation starten
