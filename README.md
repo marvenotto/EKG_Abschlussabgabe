@@ -24,6 +24,10 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 * **Datenmanipulation (CRUD):** Erstellen neuer Patientenakten, tiefgreifendes Bearbeiten bestehender Stammdaten und restloses Löschen von Profilen.
 * **Systemstatistiken:** Aggregierte, anonymisierte Systemauswertung (z. B. Anomalie-Häufigkeiten und demografische Verteilungen).
 
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+
 ---
 
 ## 🔑 Zugangsdaten für die Patienten Profile und Admin
@@ -35,13 +39,15 @@ Ein modularer, datenschutzkonformer Prototyp zur biosignalanalytischen Auswertun
 
 ### 2. Patienten-Zugänge (Vorkonfiguriert)
 * **Reiter im Interface:** 🔑 Patienten Login
-* **Einheitliches Passwort für alle Patienten:** 1234
+* **Passwort für Testaccount:** 12345
 
 **Verfügbare Test-Akten:**
+ **Test-Account:** oofuzzleoo@gmail.com
+
 * **Marven Otto:** marvenotto@gmail.com
 * **Denis Undav:** undav.dfb@gmail.com
 * **Cedi Blake:** Cedi@gmail.com
-* **Test-Account:** oofuzzleoo@gmail.com
+
 
 *Hinweis zum Self-Service:* Jederzeit können über den Reiter "📝 Registrieren" neue, vollwertige Patienten-Accounts inklusive automatisiertem Profil-Onboarding von Grund auf neu erstellt werden.
 
